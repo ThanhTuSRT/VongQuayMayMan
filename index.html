@@ -2,103 +2,140 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Vòng quay may mắn lớp học</title>
+  <title>🎡 Vòng quay may mắn lớp học</title>
   <style>
     body {
       display: flex;
-      flex-direction: column;
+      justify-content: space-around; /* vòng quay bên trái, nút bên phải */
       align-items: center;
-      justify-content: center;
       height: 100vh;
       background: radial-gradient(circle, #fefefe, #b3e5fc);
       font-family: "Poppins", sans-serif;
       overflow: hidden;
     }
+
+    /* 🎯 Container vòng quay */
     .wheel-container {
       position: relative;
-      width: 400px;
-      height: 400px;
+      width: 90vmin;   /* To gần full màn hình */
+      height: 90vmin;
+      min-width: 500px;
+      min-height: 500px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
+
     canvas {
-      border: 8px solid #0288d1;
+      width: 100%;
+      height: 100%;
+      border: 12px solid #0288d1;
       border-radius: 50%;
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      box-shadow: 0 0 30px rgba(0,0,0,0.3);
     }
-    /* Mũi tên hiển thị ngay trên vòng quay */
+
+    /* 🔺 Mũi tên nằm giữa cạnh phải, chỉ sang trái */
     .pointer {
       position: absolute;
-      top: 52%;
-      right: -22px; /* nhô ra ngoài một chút cho đẹp */
+      top: 50%;
+      right: -25px;
       transform: translateY(-50%) rotate(90deg);
       width: 0;
       height: 0;
-      border-left: 12px solid transparent;
-      border-right: 12px solid transparent;
-      border-top: 22px solid #e53935;
+      border-left: 18px solid transparent;
+      border-right: 18px solid transparent;
+      border-top: 34px solid #e53935;
       z-index: 10;
     }
+
+    /* 🎛️ Cột chứa nút điều khiển */
+    #controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
     button {
-      margin-top: 30px;
-      padding: 10px 20px;
-      font-size: 18px;
+      padding: 16px 28px;
+      font-size: 20px;
       cursor: pointer;
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       background: #0288d1;
       color: white;
       transition: 0.3s;
-      margin-right: 10px;
+      width: 180px;
     }
+
     button:hover {
       background: #01579b;
     }
-    #controls {
-      display: flex;
-      justify-content: center;
-    }
+
     #result {
       margin-top: 10px;
       color: #333;
+      text-align: center;
+      font-size: 22px;
+      max-width: 250px;
+    }
+
+    @media (max-width: 900px) {
+      body {
+        flex-direction: column;
+      }
+      .wheel-container {
+        width: 80vmin;
+        height: 80vmin;
+      }
+      #controls {
+        flex-direction: row;
+        gap: 10px;
+        margin-top: 20px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="wheel-container">
+    <canvas id="wheel" width="800" height="800"></canvas>
     <div class="pointer"></div>
-    <canvas id="wheel" width="400" height="400"></canvas>
   </div>
+
   <div id="controls">
     <button id="spin">🎡 Quay!</button>
-    <button id="shuffle">🔁 Xáo trộn danh sách</button>
+    <button id="shuffle">🔁 Xáo trộn</button>
+    <h2 id="result"></h2>
   </div>
-  <h2 id="result"></h2>
 
   <script>
-    // 🧍 Danh sách học sinh
+    // 🎓 Danh sách học sinh
     let students = [
-      "Lý Ngọc Minh An", "Trần Lê Mỹ Anh", "Nguyễn Xuân Bách", "Phan Thái Bình",
-      "Lê Bảo Châu", "Nguyễn Hồ Huyền Châu", "Nguyễn Thị Hoàng Châu", "Nguyễn Đức Dũng",
-      "Lý Thanh Duy", "Lâm Đặng Khánh Đăng", "Nguyễn Trọng Đức", "Trần Quang Hào",
-      "Đặng Tiến Huy", "Lê Thị Diễm Kiều", "Huỳnh Bảo Lam", "Nguyễn Hoàng Long",
-      "Phạm Xuân Mai", "Ngô Quang Minh", "Nguyễn Quốc Minh", "Trương Trần Hà My",
-      "Nguyễn Lê Gia Mỹ", "Đặng Thị Kim Ngân", "Nguyễn Thiện Nhân", "Lê Ngọc Thảo Như",
-      "Nguyễn Thị Huỳnh Như", "Nguyễn Văn Phi", "Nguyễn Huỳnh Yến Phương", "Nguyễn Thị Trúc Phương",
-      "Nguyễn Như Quỳnh", "Hồ Đỗ Mai Thanh", "Nguyễn Thị Phương Thảo", "Nguyễn Tống Anh Thư",
-      "Cao Huỳnh Kim Tiền", "Phạm Phúc Tiến", "Đặng Thuỳ Trâm", "Nguyễn Bảo Trọng",
-      "Nguyễn Thanh Tú", "Nguyễn Hà Khánh Tuấn", "Nguyễn Phạm Trúc Vy", "Trương Lê Tường Vy",
-      "Chung Triệu Vỹ", "Nguyễn Thị Mỹ Xuyên", "Phạm Thị Như Ý (2009)", "Phạm Thị Như Ý (2008)"
+      "Lý Ngọc Minh An","Trần Lê Mỹ Anh","Nguyễn Xuân Bách","Phan Thái Bình",
+      "Lê Bảo Châu","Nguyễn Hồ Huyền Châu","Nguyễn Thị Hoàng Châu","Nguyễn Đức Dũng",
+      "Lý Thanh Duy","Lâm Đặng Khánh Đăng","Nguyễn Trọng Đức","Trần Quang Hào",
+      "Đặng Tiến Huy","Lê Thị Diễm Kiều","Huỳnh Bảo Lam","Nguyễn Hoàng Long",
+      "Phạm Xuân Mai","Ngô Quang Minh","Nguyễn Quốc Minh","Trương Trần Hà My",
+      "Nguyễn Lê Gia Mỹ","Đặng Thị Kim Ngân","Nguyễn Thiện Nhân","Lê Ngọc Thảo Như",
+      "Nguyễn Thị Huỳnh Như","Nguyễn Văn Phi","Nguyễn Huỳnh Yến Phương","Nguyễn Thị Trúc Phương",
+      "Nguyễn Như Quỳnh","Hồ Đỗ Mai Thanh","Nguyễn Thị Phương Thảo","Nguyễn Tống Anh Thư",
+      "Cao Huỳnh Kim Tiền","Phạm Phúc Tiến","Đặng Thuỳ Trâm","Nguyễn Bảo Trọng",
+      "Nguyễn Thanh Tú","Nguyễn Hà Khánh Tuấn","Nguyễn Phạm Trúc Vy","Trương Lê Tường Vy",
+      "Chung Triệu Vỹ","Nguyễn Thị Mỹ Xuyên","Phạm Thị Như Ý (2009)","Phạm Thị Như Ý (2008)"
     ];
 
     const canvas = document.getElementById("wheel");
     const ctx = canvas.getContext("2d");
     const size = canvas.width;
     const radius = size / 2;
+
     const colors = [
-      "#ffb74d","#81c784","#64b5f6","#ba68c8","#e57373","#4db6ac","#f06292","#aed581",
-      "#9575cd","#4dd0e1","#dce775","#a1887f","#f48fb1","#7986cb","#ff8a65","#aed581"
+      "#ffb74d","#81c784","#64b5f6","#ba68c8","#e57373","#4db6ac",
+      "#f06292","#aed581","#9575cd","#4dd0e1","#dce775","#a1887f",
+      "#f48fb1","#7986cb","#ff8a65","#aed581","#4fc3f7","#81d4fa"
     ];
 
-    // 🔀 Xáo trộn ngẫu nhiên (Fisher–Yates)
+    // 🔀 Xáo trộn danh sách
     function shuffleArray(array) {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -106,7 +143,7 @@
       }
     }
 
-    // ✂️ Hàm lấy 2 chữ cuối cùng của tên
+    // ✂️ Lấy 2 chữ cuối cùng
     function shortName(fullName) {
       const parts = fullName.trim().split(" ");
       return parts.slice(-2).join(" ");
@@ -124,23 +161,20 @@
         ctx.lineTo(radius, radius);
         ctx.fill();
 
-        // 🏷 Vẽ tên (chỉ 2 chữ cuối)
         ctx.save();
         ctx.translate(radius, radius);
         ctx.rotate(i * arc + arc / 2);
         ctx.textAlign = "right";
         ctx.fillStyle = "#fff";
-        ctx.font = "bold 13px sans-serif";
-        ctx.fillText(shortName(students[i]), radius - 10, 5);
+        ctx.font = "bold 22px sans-serif";
+        ctx.fillText(shortName(students[i]), radius - 25, 8);
         ctx.restore();
       }
     }
 
-    // 🔄 Xáo trộn ban đầu khi tải trang
     shuffleArray(students);
     drawWheel();
 
-    // 🌀 Quay vòng
     let rotation = 0;
     let spinning = false;
 
@@ -148,8 +182,8 @@
       if (spinning) return;
       spinning = true;
       document.getElementById("result").textContent = "";
-      const spinAngle = Math.random() * 360 + 720; // ít nhất 2 vòng
-      const duration = 4000;
+      const spinAngle = Math.random() * 360 + 1440; // quay nhiều vòng hơn
+      const duration = 4500;
       const start = performance.now();
 
       function animate(now) {
@@ -179,12 +213,11 @@
       requestAnimationFrame(animate);
     };
 
-    // 🔁 Nút xáo trộn
     document.getElementById("shuffle").onclick = () => {
       if (spinning) return;
       shuffleArray(students);
       drawWheel();
-      document.getElementById("result").textContent = "🔀 Danh sách đã được xáo trộn!";
+      document.getElementById("result").textContent = "🔁 Danh sách đã được xáo trộn!";
     };
   </script>
 </body>
