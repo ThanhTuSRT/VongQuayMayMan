@@ -248,5 +248,37 @@
       document.getElementById("result").textContent = "🔁 Danh sách đã được xáo trộn!";
     };
   </script>
+  <!-- Nút toàn màn hình -->
+<button id="fullscreen-btn"
+        style="position: fixed; top: 10px; right: 10px; 
+               z-index: 9999; padding: 10px 16px; 
+               font-size: 16px; border-radius: 8px;
+               background-color: #007bff; color: white;
+               border: none; cursor: pointer;">
+  ⛶ Toàn màn hình
+</button>
+
+<script>
+  const btn = document.getElementById('fullscreen-btn');
+  btn.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      // Kích hoạt full màn hình
+      document.documentElement.requestFullscreen?.() || 
+      document.documentElement.webkitRequestFullscreen?.();
+      btn.textContent = "⛶ Thoát toàn màn hình";
+    } else {
+      // Thoát full màn hình
+      document.exitFullscreen?.() || 
+      document.webkitExitFullscreen?.();
+      btn.textContent = "⛶ Toàn màn hình";
+    }
+  });
+
+  // Khi người dùng bấm ESC, nút tự đổi lại tên
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+      btn.textContent = "⛶ Toàn màn hình";
+    }
+  });
 </body>
 </html>
